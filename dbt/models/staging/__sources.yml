@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  - name: olist_raw
+    schema: olist_raw
+
+    #freshness: null
+
+    tables:
+      - name: raw_customers
+        description: "Raw customer data from the Kaggle Olist Brazilian E-commerce dataset. Contains customer identifiers and shipping location information."
+
+      - name: raw_geolocation
+        description: "Raw geolocation data from the Kaggle Olist Brazilian E-commerce dataset. Contains location information and the corresponding geographic coordinates."
+
+      - name: raw_order_items
+        description: "Raw order item data from the Kaggle Olist Brazilian E-commerce dataset. Contains the order item information along with price, freight value, and seller shipping limit date."
+
+      - name: raw_payments
+        description: "Raw payment data from the Kaggle Olist Brazilian E-commerce dataset. Contains payment method, installment count, and payment amount for each order payment."
+        
+      - name: raw_reviews
+        description: "Raw review data from the Kaggle Olist Brazilian E-commerce dataset. Contains the customer satisfaction survey responses for the orders."
+
+      - name: raw_orders
+        description: "Raw order data from the Kaggle Olist Brazilian E-commerce dataset. Contains order status, customer identifiers, and lifecycle timestamps from purchase through delivery."
+        
+      - name: raw_products
+        description: "Raw product data from the Kaggle Olist Brazilian E-commerce dataset. Contains product attributes including category, name and description lengths, weight, dimensions, and photo count."
+
+      - name: raw_sellers
+        description: "Raw seller data from the Kaggle Olist Brazilian E-commerce dataset. Contains seller identifiers and their location information."
+
+      - name: raw_category_name_translation
+        description: "Raw product category name translation data from the Kaggle Olist Brazilian E-commerce dataset. Translates product category name from Portuguese to English."

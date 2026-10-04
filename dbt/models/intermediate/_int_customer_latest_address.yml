@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: int_customer_latest_address
+    description: "Determines the latest customer address based on the customer's most recent order."
+
+    columns:
+      - name: customer_unique_id
+        description: "The unique identifier for the customer, serving as the primary key for this model."
+        tests:
+          - unique
+          - not_null
+
+      - name: latest_customer_zip_code_prefix
+        description: "The 5-digit zip code prefix from the customer's most recent address record."
+        tests:
+          - not_null
+
+      - name: latest_customer_city
+        description: "The city associated with the customer's most recent order location."
+
+      - name: latest_customer_state
+        description: "The state abbreviation associated with the customer's most recent order location."

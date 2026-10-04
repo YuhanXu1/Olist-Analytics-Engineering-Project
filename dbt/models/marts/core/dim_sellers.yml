@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: dim_sellers
+    description: "Seller dimension containing the seller shipping address including the 5-digit zip code prefix, city, and state."
+
+    columns:
+      - name: seller_id
+        description: "The unique identifier of a seller, serving as the primary key."
+        tests:
+          - unique
+          - not_null
+
+      - name: seller_zip_code_prefix
+        description: "The 5-digit zip code prefix of the seller's shipping address."
+        tests:
+          - not_null
+
+      - name: seller_city
+        description: "The city name of the seller's shipping address."
+
+      - name: seller_state
+        description: "The 2-letter uppercase abbreviation of the Brazilian state (e.g., SP, RJ, MG) for the seller."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"]

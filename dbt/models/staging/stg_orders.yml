@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: "Staging model for Olist order data. Trims whitespace from string fields and standarizes datetime fields."
+
+    columns:
+      - name: order_id
+        description: "Primary key of this staging model. Unique identifier of the order."
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: "Identifier representing the customer within a single order. Each order has a unique customer_id."
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+
+      - name: order_status
+        description: "Current status of the order."
+        tests: 
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['delivered', 'shipped', 'unavailable', 'invoiced', 'created', 'approved', 'processing', 'canceled']
+
+      - name: order_purchase_datetime
+        description: "The date and time that the order was purchased."
+        tests:
+          - not_null
+
+      - name: order_approved_datetime
+        description: "The date and time that the order was approved."
+        
+      - name: order_delivered_carrier_datetime
+        description: "The date and time when the order was handled to the logistic partner."
+
+      - name: order_delivered_customer_datetime
+        description: "The actual date and time when the order was delivered to the customer."
+
+      - name: order_estimated_delivery_datetime
+        description: "The estimated date and time when the order would be delivered to the customer. It was informed to customer at the purchase moment."

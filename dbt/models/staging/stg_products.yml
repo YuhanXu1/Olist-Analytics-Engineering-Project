@@ -1,0 +1,75 @@
+version: 2
+
+models:
+  - name: stg_products
+    description: "Staging model for Olist product data. Trims whitespace from all string fields."
+
+    columns:
+      - name: product_id
+        description: "Unique identifier for a product."
+        tests:
+          - not_null
+          - unique
+
+      - name: product_category_name
+        description: "The root category of product, in Portuguese."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_category_name_translation')
+                field: product_category_name
+
+      - name: product_name_length
+        description: "The number of characters extracted from the product name."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                  
+      - name: product_description_length
+        description: "The number of characters extracted from the product description."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: product_photos_qty
+        description: "The number of product published photos."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: product_weight_g
+        description: "The product weight measured in grams."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: product_length_cm
+        description: "The product length measured in centimeters."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: product_height_cm
+        description: "The product height measured in centimeters."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: product_width_cm
+        description: "The product width measured in centimeters"
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

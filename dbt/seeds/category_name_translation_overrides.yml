@@ -1,0 +1,17 @@
+version: 2
+
+seeds:
+  - name: category_name_translation_overrides
+    description: "Manually maintained product category translations for categories missing from the original Olist translation dataset."
+
+    columns:
+      - name: product_category_name
+        description: "Product category name in Portuguese."
+        tests:
+          - unique
+          - not_null
+
+      - name: product_category_name_english
+        description: "English translation of the product category name."
+        tests:
+          - not_null

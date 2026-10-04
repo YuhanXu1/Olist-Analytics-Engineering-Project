@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: stg_reviews
+    description: "Staging model for Olist review data. Trims whitespace from string fields and standardizes datetime fields."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - review_id
+              - order_id
+
+    columns:
+      - name: review_id
+        description: "Unique identifier of a review. One review could be for multiple orders. review_id and order_id together identify one row in the reviews table."
+        tests:
+          - not_null
+
+      - name: order_id
+        description: "Unique identifier for an order. Foreign key referencing stg_orders.order_id."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+
+      - name: review_score
+        description: "Score ranging from 1 to 5 given by the customer on a satisfaction survey."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1,2,3,4,5]
+                quote: false
+
+      - name: review_comment_title
+        description: "The comment title from the review left by the customer, in Portuguese. Could be empty."
+
+      - name: review_comment_message
+        description: "The comment message from the review left by the customer, in Portuguese. Could be empty."
+
+      - name: review_creation_date
+        description: "The date in which the satisfaction survey was sent to the customer."
+        tests:
+          - not_null
+
+      - name: review_answered_datetime
+        description: "The date and time when the survey was answered."

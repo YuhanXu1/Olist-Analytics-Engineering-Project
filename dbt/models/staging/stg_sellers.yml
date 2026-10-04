@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_sellers
+    description: "Staging model for Olist seller data. Standardizes zip code formatting and trims whitespace from string fields."
+
+    columns:
+      - name: seller_id
+        description: "Primary key of this staging model. The unique identifier of a seller."
+        tests:
+          - unique
+          - not_null
+
+      - name: seller_zip_code_prefix
+        description: "The 5-digit zip code prefix of the seller's shipping address. Padded with leading zeros."
+        tests:
+          - not_null
+
+      - name: seller_city
+        description: "The city name of the seller's shipping address. Leading and trailing whitespace has been removed."
+
+      - name: seller_state
+        description: "The 2-letter uppercase abbreviation of the Brazilian state (e.g., SP, RJ, MG) for the seller."
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"]

@@ -1,0 +1,155 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: "Order-level fact table containing fulfillment lifecycle information, revenue metrics, payment information, and review score."
+    tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "order_purchase_datetime <= order_approved_datetime or order_approved_datetime is null"
+      
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "order_approved_datetime::date <= order_delivered_carrier_datetime::date or order_delivered_carrier_datetime is null"
+          config:
+            warn_if: ">1000"
+            error_if: ">5000"
+      
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "order_delivered_carrier_datetime <= order_delivered_customer_datetime or order_delivered_customer_datetime is null"
+          config:
+            warn_if: ">1000"
+            error_if: ">5000"
+
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "product_revenue + freight_fee = total_order_revenue or product_revenue is null"
+
+    columns:
+      - name: order_id
+        description: "Business key identifying an order. "
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_unique_id
+        description: "Unique identifier for the customer who placed the order. Foreign key that joins directly to dim_customers.customer_unique_id."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_unique_id
+
+      - name: order_status
+        description: "Current status of the order. Valid status include: 'delivered', 'shipped', 'unavailable', 'invoiced', 'created', 'approved', 'processing', 'canceled'."
+        tests: 
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['delivered', 'shipped', 'unavailable', 'invoiced', 'created', 'approved', 'processing', 'canceled']
+
+      - name: order_purchase_datetime
+        description: "The date and time that the order was purchased."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                max_value: "current_date"
+                inclusive: false
+      
+      - name: order_approved_datetime
+        description: "The date and time that the order was approved."
+        tests:          
+          - dbt_utils.accepted_range:
+              arguments:
+                max_value: "current_date"
+                inclusive: false
+        
+      - name: order_delivered_carrier_datetime
+        description: "The date and time when the order was handled to the logistic partner."
+        tests:          
+          - dbt_utils.accepted_range:
+              arguments:
+                max_value: "current_date"
+                inclusive: false
+
+      - name: order_delivered_customer_datetime
+        description: "The actual date and time when the order was delivered to the customer."
+        tests:          
+          - dbt_utils.accepted_range:
+              arguments:
+                max_value: "current_date"
+                inclusive: false
+
+      - name: order_estimated_delivery_datetime
+        description: "The estimated date and time when the order would be delivered to the customer. It was informed to customer at the purchase moment."
+
+      - name: primary_payment_method
+        description: "The payment method associated with the largest payment amount."
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['credit_card', 'debit_card', 'voucher', 'boleto', 'not_defined']
+
+      - name: payment_amount
+        description: "The total amount that the customer paid."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: num_payment_installments
+        description: "The number of installments that the customer chose for credit card payment."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: product_revenue
+        description: "The total revenue of all the products."
+        tests:
+          - not_null:
+              config:
+                warn_if: ">1000"
+                error_if: ">5000"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: freight_fee
+        description: "The total freight fee of all the products"
+        tests:
+          - not_null:
+              config:
+                warn_if: ">1000"
+                error_if: ">5000"         
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_order_revenue
+        description: "The total revenue for an order including both product revenue and freight fee."
+        tests:
+          - not_null:
+              config:
+                warn_if: ">1000"
+                error_if: ">5000"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: review_score
+        description: "The average score given by the customer on one or more satisfaction surveys for this order. The score given on one survey ranges from 1 to 5."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 5
+                inclusive: true

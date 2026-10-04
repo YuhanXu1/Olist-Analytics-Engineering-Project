@@ -1,0 +1,101 @@
+version: 2
+
+models:
+  - name: fct_order_items
+    description: "Orderitem-level fact table. It contains revenue metrics, shipping limit date, and shipping distance, linking business events to dimensions like customers, products, and sellers."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - order_item_id
+            
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "price + freight_value = gross_item_revenue"
+
+    columns:
+      - name: order_item_id
+        description: "Business key identifying an order item."
+        tests:
+          - not_null
+
+      - name: order_id
+        description: "Unique identifier for the order, one order could have multiple order items. Foreign key that joins directly to fct_orders.order_id."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+
+      - name: customer_unique_id
+        description: "Unique identifier for the customer who placed the order. Foreign key that joins directly to dim_customers.customer_unique_id."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_unique_id
+
+      - name: product_id
+        description: "Unique identifier for the product of the order item. Foreign key that join directly to dim_products.product_id."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+
+      - name: seller_id
+        description: "Unique identifier for the seller of the order item. Foreign key that join directly to dim_sellers.seller_id."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_sellers')
+                field: seller_id
+
+      - name: shipping_limit_datetime
+        description: "The latest date and time that the seller must handle the order over to the logistic partner."
+        tests:
+          - not_null
+
+      - name: price
+        description: "The order item price."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: freight_value
+        description: "The order item freight value (if an order has more than one item the freight value is splitted between items)."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: gross_item_revenue
+        description: "The order item revenue including both price and freight value."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: shipping_distance_km
+        description: "The shipping distance between the order item seller and the customer."
+        tests:
+          - not_null:
+              config:
+                warn_if: ">1000"
+                error_if: ">5000"                
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

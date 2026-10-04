@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: int_geolocation
+    description: "Aggorogated geolocation data grouped by 5-digit zip code prefix, picking the alphabetical minimum city/state and averaging the coordinates."
+    columns:
+      - name: geolocation_zip_code_prefix
+        description: "The unique identifier for the geolocation block, serving as the primary key for this model."
+        tests:
+          - unique
+          - not_null
+
+      - name: geolocation_city
+        description: "The alphabetical minimum city name associated with this zip code prefix."
+        tests:
+          - not_null
+
+      - name: geolocation_state
+        description: "The alphabetical minimum state abbreviation associated with this zip code prefix."
+        tests:
+          - not_null
+
+      - name: geolocation_latitude
+        description: "The calculated average latitude coordinate for this zip code prefix."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -90
+                max_value: 90
+
+      - name: geolocation_longitude
+        description: "The calculated average longitude coordinate for this zip code prefix."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -180
+                max_value: 180

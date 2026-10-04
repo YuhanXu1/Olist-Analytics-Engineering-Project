@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: "Date dimension containing a continuous series of dates with calendar attributes, flags for weekends and standard holidays, and prior year reference dates."
+    config:
+      contract:
+        enforced: true
+        
+    columns:
+      - name: date_id
+        description: "Unique integer surrogate key for the date in YYYYMMDD format (e.g., 20160101)."
+        data_type: integer
+        tests:
+          - unique
+          - not_null
+
+      - name: full_date
+        description: "The calendar date."
+        data_type: date
+        tests:
+          - unique
+          - not_null
+
+      - name: year
+        description: "The 4-digit calendar year."
+        data_type: integer
+        tests:
+          - not_null
+
+      - name: month
+        description: "The calendar month number (1-12)."
+        data_type: integer
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+      - name: day
+        description: "The day of the month (1-31)."
+        data_type: integer
+        tests:
+          - not_null
+
+      - name: weekday
+        description: "The ISO day of the week (1 = Monday through 7 = Sunday)."
+        data_type: integer
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7]
+
+      - name: is_weekend
+        description: "Flag indicating whether the date falls on a weekend (Saturday or Sunday)."
+        data_type: boolean
+        tests:
+          - not_null
+
+      - name: prior_year_same_date
+        description: "The exact calendar date from one year prior."
+        data_type: date
+
+      - name: prior_year_same_weekday
+        description: "The corresponding date from 52 weeks (364 days) prior, aligning the day of the week."
+        data_type: date
+
+      - name: is_holiday
+        description: "Flag indicating whether the date is a fixed-date holiday (New Year's Day, Independence Day, Veterans Day, Christmas Day)."
+        data_type: boolean
+        tests:
+          - not_null

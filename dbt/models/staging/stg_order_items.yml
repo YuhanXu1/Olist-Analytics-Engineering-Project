@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: stg_order_items
+    description: "Staging model for Olist order item data. Trims whitespace from the ids, standardizes the shipping_limit_datetime and revenue."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - order_item_id
+
+    columns:
+      - name: order_id
+        description: "Unique identifier for an order. Foreign key referencing stg_orders.order_id. One order could have multiple order items."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+
+      - name: order_item_id
+        description: "Sequential number identifying number of items included in the same order. order_id and order_item_id together uniquely identify each order item."
+        tests:
+          - not_null
+          - dbt_utils.sequential_values:
+              arguments:
+                interval: 1
+                group_by_columns: ['order_id']
+
+      - name: product_id
+        description: "Unique identifier for a product. Foreign key referencing stg_products.product_id."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: product_id
+
+      - name: seller_id
+        description: "Unique identifier for a seller. Foreign key referencing stg_sellers.seller_id"
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_sellers')
+                field: seller_id
+
+      - name: shipping_limit_datetime
+        description: "The latest date and time that the seller must handle the order over to the logistic partner."
+        tests:
+          - not_null
+
+      - name: price
+        description: "The order item price."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+                  
+      - name: freight_value
+        description: "The order item freight value (if an order has more than one item the freight value is splitted between items)."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

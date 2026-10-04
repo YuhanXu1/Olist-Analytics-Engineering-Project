@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: dim_geolocation
+    description: "The geolocation dimension containing the 5-digit zip code prefix, the corresponding city, state, and the coordinates."
+
+    columns:
+      - name: geolocation_zip_code_prefix
+        description: "The 5-digit zip code prefix of the geolocation. It is the unique identifier for the geolocation block, serving as the primary key."
+        tests:
+          - not_null
+          - unique
+
+      - name: geolocation_city
+        description: "The city name associated with this zip code prefix."
+        tests:
+          - not_null
+
+      - name: geolocation_state
+        description: "The 2-letter uppercase abbreviation of the Brazilian state (e.g., SP, RJ, MG) associated with this zip code prefix"
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"]
+
+      - name: geolocation_latitude
+        description: "The latitude for this zip code prefix."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -90
+                max_value: 90
+      
+      - name: geolocation_longitude
+        description: "The longitude for this zip code prefix."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -180
+                max_value: 180

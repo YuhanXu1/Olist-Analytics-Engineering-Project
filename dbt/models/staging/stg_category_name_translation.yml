@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: stg_category_name_translation
+    description: "Staging model for Olist product category name translation data. Trims whitespace from both fields."
+
+    columns:
+      - name: product_category_name
+        description: "Product category name in Portuguese."
+        tests:
+          - unique
+          - not_null
+
+      - name: product_category_name_english
+        description: "Product category name translation in English."
+        tests:
+          - not_null

@@ -1,0 +1,17 @@
+version: 2
+
+seeds:
+  - name: brazil_floating_holidays
+    description: "Manually maintained Brazilian floating holiday calendar used to enrich the date dimension."
+
+    columns:
+      - name: full_date
+        description: "Calendar date of the holiday."
+        tests:
+          - unique
+          - not_null
+
+      - name: holiday_name
+        description: "Name of the holiday."
+        tests:
+          - not_null

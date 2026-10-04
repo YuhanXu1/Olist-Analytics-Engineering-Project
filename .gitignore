@@ -1,0 +1,19 @@
+# Environment variables / secrets
+.env
+
+# Data
+data/
+
+# Python
+__pycache__/
+#*.py[cod]
+*test*.py
+
+# Airflow
+airflow/logs/
+
+# dbt generated files
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+.user.yml

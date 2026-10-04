@@ -1,0 +1,7 @@
+#packages to install
+numpy
+pandas
+psycopg[binary]
+kagglehub
+kagglehub[pandas-datasets]
+sqlalchemy

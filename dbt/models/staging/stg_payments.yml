@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: stg_payments
+    description: "Staging model for Olist payment data. Trims whitespace from string fields and lowercases the payment_type."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - payment_sequential_id
+
+    columns:
+      - name: order_id
+        description: "Unique identifier for an order. Foreign key referencing stg_orders.order_id. One order could have multiple payments."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+
+      - name: payment_sequential_id
+        description: "Sequential number identifying number of payments included in the same order. order_id and payment_sequential_id together uniquely identify each payment."
+        tests:
+          - not_null
+          - dbt_utils.sequential_values:
+              arguments:
+                interval: 1
+                group_by_columns: ['order_id']
+
+      - name: payment_type
+        description: "The method of payment(s) chosen by the customer."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['credit_card', 'debit_card', 'voucher', 'boleto', 'not_defined']
+                  
+      - name: payment_installments
+        description: "The number of installments chosen by the customer."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: payment_value
+        description: "The transaction value for each payment."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

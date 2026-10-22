@@ -13,6 +13,7 @@
   - [Data Transformation](#data-transformation)
   - [Data Quality Testing](#data-quality-testing)
   - [Airflow Orchestration](#airflow-orchestration)
+- [Tableau Dashboard Examples](#tableau-dashboard-examples)
 - [Docker Architecture](#docker-architecture)
 - [Setup](#setup)
   - [Prerequisites](#prerequisites)
@@ -63,7 +64,8 @@ dbt Transformation
 dbt Tests
    │
    ▼
-Analytics Consumption (e.g. Tableau)
+Analytics Consumption
+   └── Tableau Dashboard Examples
 
 Airflow
    ├── orchestrates Python ingestion
@@ -239,6 +241,19 @@ olist_dbt_transform
 The dbt DAG is responsible for:
 - Building dbt models
 - Running dbt data quality tests
+
+## Tableau Dashboard Examples
+The reporting views demonstrate how the core data models can support business-facing analytics use cases.
+
+### Sales Performance
+- Business questions: How do sales and freight fees vary over time and across product categories?
+- Data source: `rpt_sales_daily`, `rpt_sales_per_product_category_daily`
+- Dashboard: [View dashboard](https://public.tableau.com/views/OlistDashboard_17923658864170/Revenue)
+
+### Logistics & Delivery
+- Business questions: How does delivery performance vary over time and across seller-to-customer routes?
+- Data source: `rpt_logistics_daily`, `rpt_logistics_per_route_daily`
+- Dashboard: [View dashboard](https://public.tableau.com/views/OlistDashboard_17923658864170/Logistic)
 
 ## Docker Architecture
 Docker Compose manages the project's services.

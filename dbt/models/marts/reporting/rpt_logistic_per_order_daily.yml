@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: rpt_logistic_per_order_daily
+    description: "Daily logistics reporting model based on unique delivered orders. Order-level lifecycle durations and delivery outcomes are calculated per order_id. "
+
+    columns:
+      - name: order_id
+        description: "Business key identifying an order."
+        tests:
+          - unique
+          - not_null
+
+      - name: order_purchase_date
+        description: "Date the order was placed."
+        tests:
+          - not_null
+      
+      - name: is_delay_flag
+        description: "Indicates whether the order was delivered to the customer after the estimated delivery date. Orders delivered on the same day as the estimated delivery date is not considered as delay orders."
+        data_type: boolean
+
+      - name: order_approve_days
+        description: "Valid purchase-to-approval durations in days."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: order_seller_to_carrier_days
+        description: "Valid approval-to-carrier durations in days. An order must be approved before the seller(s) can deliver the product(s) to the carrier."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: order_carrier_to_customer_days
+        description: "Valid carrier-to-customer duration in days."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: order_delivery_delay_days
+        description: "Order delay days for delayed orders, the duration in days between the estimated delivery datetime and the actual customer delivery datetime."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

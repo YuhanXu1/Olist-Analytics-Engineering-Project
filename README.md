@@ -56,12 +56,14 @@ dbt Transformation
    ├── Staging
    ├── Intermediate
    └── Marts
-        │
-        ▼
-    dbt Tests
-        │
-        ▼
- Analytics Data
+        ├── Core Models (Dimensions & Facts)
+        └── Reporting Models
+   │
+   ▼
+dbt Tests
+   │
+   ▼
+Analytics Consumption (e.g. Tableau)
 
 Airflow
    ├── orchestrates Python ingestion
@@ -180,14 +182,21 @@ The dbt project follows a layered modeling approach.
 - **Seeds:** Stores reference datasets for the transformation models, including Brazilian floating holidays and Category name translation overrides.
 - **Staging:** Standardizes the column names, formats, and data types.
 - **Intermediate:** Combines and transforms staging models to implement reusable business logic. This includes deduplicating the geolocation data and determining each customer's latest address based on their most recent order.
-- **Marts:** Builds dimensional and fact models for analytics. This includes:
-    - **Customer dimension:** Contains each customer's latest address and lifetime purchase metrics.
-    - **Date dimension:** Provides a continuous series of dates with calendar attributes, weekend and standard holiday flags, and prior-year reference dates.
-    - **Geolocation dimension:** Contains the 5-digit zip code prefix, corresponding city and state, and the coordinates.
-    - **Product dimension:** Contains product category name, product name and description length, photo count, product dimensions, and weight. 
-    - **Seller dimension:** Contains the seller shipping address, including the 5-digit zip code prefix, city, and state.
-    - **Order item fact:** Provides orderitem-level revenue metrics, shipping limit date, and shipping distance.
-    - **Order fact:** Provides order-level fulfillment lifecycle information, revenue metrics, payment information, and review score.
+- **Marts:** Includes reusable dimensional models and business-facing reporting datasets.
+   - **Core**: Builds dimensional and fact models for analytics. This includes:
+      - **Customer dimension:** Contains each customer's latest address and lifetime purchase metrics.
+      - **Date dimension:** Provides a continuous series of dates with calendar attributes, weekend and standard holiday flags, and prior-year reference dates.
+      - **Geolocation dimension:** Contains the 5-digit zip code prefix, corresponding city and state, and the coordinates.
+      - **Product dimension:** Contains product category name, product name and description length, photo count, product dimensions, and weight. 
+      - **Seller dimension:** Contains the seller shipping address, including the 5-digit zip code prefix, city, and state.
+      - **Order item fact:** Provides orderitem-level revenue metrics, shipping limit date, and shipping distance.
+      - **Order fact:** Provides order-level fulfillment lifecycle information, revenue metrics, payment information, and review score.
+   - **Reporting**: Builds analytics products for specific business questions based on the core models. For example:
+      - **Sales Daily**: Analyzes daily delivered product revenue, freight fees, order volume, and item volume.
+      - **Sales per Product Category Daily**: Analyzes daily sales performance on product category level.
+      - **Logistic per Order Daily**: Provides order-level lifecycle durations and delivery outcomes.
+      - **Logistic Daily**: Monitors daily delivery performance, order lifecycle durations, and delivery delays.
+      - **Logistic per Route Daily**: Analyzes daily delivery performance across customer-to-seller state routes.
 
 ### Data Quality Testing
 dbt tests are executed after the transformations are built to verify the configured data quality expectations.
@@ -363,13 +372,24 @@ Source validation and raw-table validation occur before dbt runs.
 
 This prevents transformation jobs from operating on files or tables that do not meet the expected structural requirements.
 
+### Separation of Core and Reporting Models
+The dbt marts layer separates reusable core models from business-facing reporting models.
+
+Core models are materialized as tables to provide structured, reusable datasets for downstream transformations. Reporting models are materialized as views in a separate schema, providing a lightweight layer for defining metrics and organizing data around specific analytical use cases.
+
+### Grain and Metric Aggregation
+Reporting models are designed around explicit grains, such as purchase date, purchase date and product category, or purchase date and seller-to-customer state route.
+
+Metric calculations account for the differences between additive and non-additive measures. For example, revenue and item counts can generally be aggregated across product categories when each item belongs to one category, while distinct order count cannot necessarily be summed across categories.
+
+Similarly, a single order may involve multiple seller-to-customer routes. Overall logistics metrics are therefore calculated from unique orders, while route-level metrics attribute relevant order outcomes to each route represented in the order.
+
 ## Limitations
 - The source dataset is currently processed using a full-refresh strategy.
 - The pipeline is designed primarily for local Docker execution.
 - Monitoring and alerting are not currently implemented.
 
 ## Future Improvements
-- Add reporting models and dashboard examples.
 - Add reusable generic dbt tests for common data quality rules.
 - Add pipeline monitoring and alerting.
 - Add incremental ingestion if the source becomes incrementally available.

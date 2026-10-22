@@ -18,8 +18,13 @@ models:
       +schema: intermediate
 
     marts:
-      +materialized: table
-      +schema: marts
+      core:
+        +materialized: table
+        +schema: marts
+        
+      reporting:
+        +materialized: view
+        +schema: reporting
 
 seeds:
   olist_dbt_project:

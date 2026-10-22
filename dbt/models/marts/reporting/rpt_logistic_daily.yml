@@ -1,0 +1,60 @@
+version: 2
+
+models:
+  - name: rpt_logistic_daily
+    description: "Daily logistics reporting model based on delivered orders. Metrics are grouped by order purchase date. "
+
+    columns:
+      - name: order_purchase_date
+        description: "Date the order was placed."
+        tests:
+          - not_null
+          - unique
+      
+      - name: order_count
+        description: "Number of distinct delivered orders purchased on this date."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: delay_order_count
+        description: "Number of distinct delivered orders that was delivered to the customer after the estimated delivery date."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_order_approve_days
+        description: "Sum of purchase-to-approval durations in days."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_order_seller_to_carrier_days
+        description: "Sum of approval-to-carrier durations in days. An order must be approved before the seller(s) can deliver the product(s) to the carrier."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_order_carrier_to_customer_days
+        description: "Sum of carrier-to-customer duration in days."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_order_delivery_delay_days
+        description: "Sum of order delay days for delayed orders, the duration in days between the estimated delivery datetime and the actual customer delivery datetime."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

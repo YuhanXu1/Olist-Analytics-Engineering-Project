@@ -1,0 +1,62 @@
+version: 2
+
+models:
+  - name: rpt_sales_per_product_category_daily
+    description: "Daily sales reporting model for delivered orders grouped by purchase date and product category. Distinct order are not additive across product categories."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - product_category_name
+              - order_purchase_date
+
+    columns:
+      - name: product_category_name
+        description: "Product category, with missing category values assigned an unknown label 'unk'."
+        tests:
+          - not_null
+
+      - name: order_purchase_date
+        description: "Date the order was placed."
+        tests:
+          - not_null
+
+      - name: is_weekend
+        description: "Indicates whether the purchase date falls on a weekend."
+        data_type: boolean
+
+      - name: is_holiday
+        description: "Indicates whether the purchase date is a recognized holiday."
+        data_type: boolean
+
+      - name: delivered_product_revenue
+        description: "Sum of product prices for items in delivered orders in the category."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: delivered_freight_fee
+        description: "Sum of freight fees for items in delivered orders in the category."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: delivered_order_count
+        description: "Number of distinct delivered orders purchased on this date in the category."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: delivered_order_item_count
+        description: "Number of distinct order items in delivered orders in the category."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

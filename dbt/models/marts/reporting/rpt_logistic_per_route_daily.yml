@@ -1,0 +1,108 @@
+version: 2
+
+models:
+  - name: rpt_logistic_per_route_daily
+    description: "Daily logistics reporting model for delivered orders grouped by purchase date and seller-to-customer state route. Order-level outcomes are attributed to each route represented in an order, so order counts are not additive across routes. Item-level seller handoff metrics are based on order items."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_purchase_date
+              - customer_state
+              - seller_state
+
+    columns:
+      - name: order_purchase_date
+        description: "Date the order was placed."
+        tests:
+          - not_null
+
+      - name: customer_state
+        description: "State where the customer is located."
+        tests:
+          - not_null
+
+      - name: seller_state
+        description: "State where the seller is located."
+        tests:
+          - not_null
+
+      - name: order_count
+        description: "Number of distinct delivered orders purchased on this route and date."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: delay_order_count
+        description: "Number of late delivered orders (delivered to the customer after the estimated delivery date) represented on this route and date."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_order_approve_days
+        description: "Sum of purchase-to-approval durations in days for orders represented on this route and date."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_order_seller_to_carrier_days
+        description: "Sum of approval-to-carrier durations in days for orders represented on this route and date. An order must be approved before the seller(s) can deliver the product(s) to the carrier."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_order_carrier_to_customer_days
+        description: "Sum of carrier-to-customer duration in days for orders represented on this route and date."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_order_delivery_delay_days
+        description: "Sum of order delay days for delayed orders for orders represented on this route and date, the duration in days between the estimated delivery datetime and the actual customer delivery datetime."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_order_item_count
+        description: "Number of delivered order items represented on this route and date."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_seller_delay_order_item_count
+        description: "Number of order items handed by sellers to the carrier after their shipping deadline. Order items handed to the carrier on the same day as the shipping limit date is not considered as delay items."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true                
+
+      - name: total_shipping_distance_km
+        description: "Sum of item-level shipping distance values for the route and date."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: total_seller_delay_days
+        description: "Sum of seller handoff delay days for delayed order items (handed to the carrier after their shipping deadline)."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: rpt_sales_daily
+    description: "Daily sales reporting model for orders that eventually reached delivered status. Metrics are grouped by order purchase date. Recent purchase dates may not represent complete sales outcomes."
+
+    columns:
+      - name: order_purchase_date
+        description: "Date the order was placed."
+        tests:
+          - unique
+          - not_null
+      
+      - name: is_weekend
+        description: "Indicates whether the purchase date falls on a weekend."
+        data_type: boolean
+
+      - name: is_holiday
+        description: "Indicates whether the purchase date is a recognized holiday."
+        data_type: boolean
+
+      - name: delivered_product_revenue
+        description: "Sum of product prices for items in delivered orders."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: delivered_freight_fee
+        description: "Sum of freight fees for items in delivered orders."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: delivered_order_count
+        description: "Number of distinct delivered orders purchased on this date."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+
+      - name: delivered_order_item_count
+        description: "Number of distinct order items in delivered orders."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
